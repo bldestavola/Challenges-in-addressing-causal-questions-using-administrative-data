@@ -108,4 +108,9 @@ For the rate  difference, we first find the mean denominator, then calculate the
 .  nlcom (_b[POmean:0.SEN1]+ _b[ATE:r1vs0.SEN1])/mean-(_b[POmean:0.SEN1])/mean
 
 
-To estimate the ATT, we need to use the option {\tt atet} and then follow similar steps (see Simulations_Table2_github.do):
+To estimate the ATT, we need to use the option "atet" and then follow similar steps (see Simulations_Table2_github.do).
+
+
+TO PRODUCE THE RESULTS REPORTED IN TABLE 3 (time-fixed exposure)
+
+
