@@ -113,4 +113,11 @@ To estimate the ATT, we need to use the option "atet" and then follow similar st
 
 TO PRODUCE THE RESULTS REPORTED IN TABLE 3 (time-fixed exposure)
 
+To produce these results we sequentially select two consecutive records (for time 1 and time 2 and then for time 2 and 3, etc) and 
+use the same commands as for Table 2 to produce the estiamtes. See "Simulations_Table3_github.do".
 
+
+TO PRODUCE THE RESULTS REPORTED IN TABLE 4 (sustained exposure)
+
+Things here are more complicated and we wrote two commands, one for g-computation adn one for IPW estimation 
+called "Sustained_SEND-gcomp.ado" and "Sustained_SEND_Ipw.ado". See "Simulations_Table4_github.do".
