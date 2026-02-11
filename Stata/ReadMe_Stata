@@ -1,14 +1,21 @@
-
+############################################################################################################################
 
  Outline of Stata code
 
+############################################################################################################################
+
 TO PRODUCE THE RESULTS REPORTED IN TABLE 2 (time-fixed exposure)
 
-Let Y represents the outcome, D the denominator for the outcome,  and A the intervention. Specifically, Y is the cumulative number of unauthorised absences up to the end of Year 4 and D the cumulative number of possible half sessions over the same period, while A is SEND provision in Year 1. 
+Let Y represents the outcome, D the denominator for the outcome,  and A the intervention. Specifically, Y is the cumulative
+number of unauthorised absences up to the end of Year 4 and D the cumulative number of possible half sessions over the same 
+period, while A is SEND provision in Year 1. 
 
-We also denote H to be the first observation of the time varying (binary) variable hospitalization, i.e. it is hospitalization in Year 1. 
-In our example there are also several baseline (binary) confounders, labelled in the data set as: "male", "white", "idacibin",  "eyfsp_bin".
+We also denote H to be the first observation of the time varying (binary) variable hospitalization, i.e. it is hospitalization 
+in Year 1. 
+In our example there are also several baseline (binary) confounders, labelled in the data set as: "male", "white", "idacibin",
+"eyfsp_bin".
 
+############################################################################################################################
 
 1) G-computation 
 
@@ -16,13 +23,15 @@ There are different options available.
 
  1a. Option 1
  
- Fit a Poisson model and then use the "margins" command to derive the average potential outcomes.  A simple (incorrect) specification of the Y model would be:
+ Fit a Poisson model and then use the "margins" command to derive the average potential outcomes.  A simple (incorrect) 
+specification of the Y model would be:
 
 
 .  poisson Y i.(male white idacibin  eyfsp_bin H) i.A, exp(D) 
 .  margins A, post
 
-The "margins" command produces predicted mean potential counts. We then need to translate them into rate ratios and rate differences using "nlcom" which provides approximate confidence intervals for these effects based on the delta method.
+The "margins" command produces predicted mean potential counts. We then need to translate them into rate ratios and rate 
+differences using "nlcom" which provides approximate confidence intervals for these effects based on the delta method.
 
 For the ATE expressed as a rate ratio, we type:
 
@@ -36,7 +45,7 @@ For the ATE expressed as a rate difference, we also need to provide the average 
 . nlcom (_b[1.A])/mean- (_b[0bn.A])/mean           
 
 
-To fit a more general outcome model that includes many interactions (such as the 3 version in Table 3) we write:
+To fit a more general outcome model that includes many interactions (such as version 3 in Table 2) we write:
 
 . #delimit; 
 .  poisson Y i.(male white idacibin eyfsp_bin H)##i.A         
@@ -54,9 +63,13 @@ To produce the ATT similar step are followed- see "Simulation_Table2_github.do".
 
    1b. Option 2
 
-  Alternatively we can write a dedicated "ado" program, the advantage being that one can better control the model specification. Standard errors (SEs) are then derived by bootstrap.
+  Alternatively we can write a dedicated "ado" program, the advantage being that one can better control the model specification. 
+Standard errors (SEs) are then derived by bootstrap.
 
-We have used a program called "SEND_gcomp.ado"  which we then run several times to bootstrap the SEs. When calling this program, one needs to specify the outcome Y, the exposure/intervention A, the denominator D and also H, the baseline value of the time varying confounder (we separated the time-varying confounder from the list of confounders to be able to use the same command to produce the results shown in Table 3):
+We have used a program called "SEND_gcomp.ado"  which we then run several times to bootstrap the SEs. When calling this program,
+one needs to specify the outcome Y, the exposure/intervention A, the denominator D and also H, the baseline value of the 
+time-varying confounder (we separated the time-varying confounder from the list of confounders to be able to use the same 
+command to produce the results shown in Table 3):
 
 . #delimit; 
    bootstrap    ATE_rate_ratio=r(ATE_rate_ratio)  ATT_rate_ratio=r(ATT_rate_ratio)
@@ -71,6 +84,7 @@ The output reports estimated ATE and ATT on both the rate ratio and rate differe
 The options "reps", "seeds" and "nodrop" are specific to the "bootstrap" command. 
 
 
+############################################################################################################################
 
 2)  IPW 
 
@@ -91,14 +105,16 @@ The output reports estimated ATE and ATT on both the rate ratio and rate differe
 
 3) AIPW 
 
-Fortunately the "teffects" command implements AIPW estimation for count data with denominator.  The syntax is as follows, for specification 1:
+Fortunately the "teffects" command implements AIPW estimation for count data with denominator.  The syntax is as follows, 
+for specification 1:
 
 .  vl modify 	base_conf=(male white idacibin eyfsp_bin  H)
 
 .  teffects aipw (rate $base_conf,poisson)   (A $base_conf)
 
 
-This leads to estimate of potential outcomes, i.e. counts. To translate then into ATE on the rate ratio scale we use "nlcom" again.
+This leads to estimate of potential outcomes, i.e. counts. To translate then into ATE on the rate ratio scale we use 
+"nlcom" again:
 
 .  nlcom ( _b[POmean:0.A]+_b[ATE:r1vs0.A])/_b[POmean:0.A]
 
@@ -110,14 +126,17 @@ For the rate  difference, we first find the mean denominator, then calculate the
 
 To estimate the ATT, we need to use the option "atet" and then follow similar steps (see Simulations_Table2_github.do).
 
-
+############################################################################################################################
 TO PRODUCE THE RESULTS REPORTED IN TABLE 3 (time-fixed exposure)
+############################################################################################################################
 
 To produce these results we sequentially select two consecutive records (for time 1 and time 2 and then for time 2 and 3, etc) and 
-use the same commands as for Table 2 to produce the estiamtes. See "Simulations_Table3_github.do".
+use the same commands as for Table 2 to produce the estimates. See "Simulations_Table3_github.do".
 
 
+############################################################################################################################
 TO PRODUCE THE RESULTS REPORTED IN TABLE 4 (sustained exposure)
+############################################################################################################################
 
 Things here are more complicated and we wrote two commands, one for g-computation adn one for IPW estimation 
 called "Sustained_SEND-gcomp.ado" and "Sustained_SEND_Ipw.ado". See "Simulations_Table4_github.do".
