@@ -1,0 +1,116 @@
+
+
+ Outline of R code
+
+TO PRODUCE THE RESULTS REPORTED IN TABLE 2 (time-fixed exposure)
+
+Let Y represents the outcome, D the denominator for the outcome,  and A the intervention. Specifically, Y is the cumulative number of unauthorised absences up to the end of Year 4 and D the cumulative number of possible half sessions over the same period, while A is SEND provision in Year 1. 
+
+We also denote H to be the first observation of the time varying (binary) variable hospitalization, i.e. it is hospitalization in Year 1. 
+In our example there are also several baseline (binary) confounders, labelled in the data set as: "male", "white", "idacibin",  "eyfsp_bin".
+
+
+1) G-computation 
+
+ 
+ Fit a Poisson model using the "glm" function and then calcualte the average POs with the post-estimation "avg_predictions".  
+  A simple specification of the Y model correpsonding to incorrect model 1 in Table 2 is:
+
+
+            base_conf1 <- c("male", "white", "idacibin", "eyfsp_bin", "H")
+            
+            fit_g1 <- glm(
+              Y ~ A + male + white + idacibin + eyfsp_bin + H,
+              family = poisson(),
+              offset = log(D),
+              data = dat
+            )
+            
+            # ATE (rate scale)
+            ate_g1 <- avg_predictions(fit_g1, variables = "A")
+            
+   
+            
+For the ATE expressed as a rate ratio, we type:
+
+         # ATE rate ratio
+            ate_rr_g1 <- ate_g1$estimate[ate_g1$A == 1] /
+              ate_g1$estimate[ate_g1$A == 0]
+            
+            
+For the ATE expressed as a rate difference, we also need to provide the average denominator:
+    #calculate mean denominators for ATE and ATT
+      mean_D     <- mean(dat$D)
+      mean_D_att <- mean(dat$D[dat$A == 1])
+
+    # ATE rate difference
+      ate_rd_g1 <- (ate_g1$estimate[ate_g1$A == 1] -
+                              ate_g1$estimate[ate_g1$A == 0]) / mean_D
+
+To fit a more general outcome model that includes many interactions (such as version 3 in Table 2) we fit a more general 
+Poisson model and then follow the same steps:
+
+      fit_g3 <- glm(
+        Y ~ A * (male + white + idacibin + eyfsp_bin + H) +
+          A * H * (male + white + idacibin + eyfsp_bin) +
+          A * male * white * idacibin * eyfsp_bin,
+        family = poisson(),
+        offset = log(D),
+        data = dat
+      )
+
+
+
+To produce the ATT similar step are followed- see "Simulation_Table2_github.r".
+
+
+
+2)  IPW 
+
+In general, we could use the Stata commands called "teffects" to estima theATE and the ATT. Unfortunately the command does not support the setting with Poisson regression with denominators. We could  use instead our own command. First however we need to specify what variables to include in the PS model. For specification 1 in the table we can do this:
+
+.  vl create base_conf=(male white idacibin eyfsp_bin)
+.  #delimit; 
+ 	bootstrap    ATE_rr=r(ATE_rr)  ATE_rd=r(ATE_rd) 
+        	     ATT_rr=r(ATT_rr)  ATT_rd=r(ATT_rd)  
+              , 
+              	    reps(1000) nodrop seed(1212): 
+                    SEND_ipw Y A D H  
+                 ;
+#delimit cr         
+     
+The output reports estimated ATE and ATT on both the rate ratio and rate difference scale.
+
+
+3) AIPW 
+
+Fortunately the "teffects" command implements AIPW estimation for count data with denominator.  The syntax is as follows, for specification 1:
+
+.  vl modify 	base_conf=(male white idacibin eyfsp_bin  H)
+
+.  teffects aipw (rate $base_conf,poisson)   (A $base_conf)
+
+
+This leads to estimate of potential outcomes, i.e. counts. To translate then into ATE on the rate ratio scale we use "nlcom" again.
+
+.  nlcom ( _b[POmean:0.A]+_b[ATE:r1vs0.A])/_b[POmean:0.A]
+
+For the rate  difference, we first find the mean denominator, then calculate the rates and then the rate difference:
+.  su D
+.  scalar mean=r(mean)
+.  nlcom (_b[POmean:0.SEN1]+ _b[ATE:r1vs0.SEN1])/mean-(_b[POmean:0.SEN1])/mean
+
+
+To estimate the ATT, we need to use the option "atet" and then follow similar steps (see Simulations_Table2_github.do).
+
+
+TO PRODUCE THE RESULTS REPORTED IN TABLE 3 (time-fixed exposure)
+
+To produce these results we sequentially select two consecutive records (for time 1 and time 2 and then for time 2 and 3, etc) and 
+use the same commands as for Table 2 to produce the estiamtes. See "Simulations_Table3_github.do".
+
+
+TO PRODUCE THE RESULTS REPORTED IN TABLE 4 (sustained exposure)
+
+Things here are more complicated and we wrote two commands, one for g-computation adn one for IPW estimation 
+called "Sustained_SEND-gcomp.ado" and "Sustained_SEND_Ipw.ado". See "Simulations_Table4_github.do".
