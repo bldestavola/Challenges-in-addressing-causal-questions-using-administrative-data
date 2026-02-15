@@ -11,7 +11,7 @@
 
 *************************************************************************************
 /* SELECT THE FOLDER WHERE DATA and Do files ARE HELD */
-cd 		"C:\Users\sejjbld\OneDrive - University College London\_GRANTS\Ruth Gilbert\HOPE\WP3&4\papers\IJPDS Notes\data_analyses"
+cd 		"......"
 
 /* SAVE RESULTS */
 cap log close
@@ -153,4 +153,5 @@ nlcom _b[1.A_lag]/mean_att- _b[0bn.A_lag]/mean_att
 
 
 ex
+
 
