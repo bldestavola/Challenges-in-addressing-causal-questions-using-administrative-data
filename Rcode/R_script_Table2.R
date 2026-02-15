@@ -297,3 +297,4 @@ print(tab2, n = Inf)
 
 # Optional: save tab2
 # write_csv(tab2, "results/Table2_R.csv")
+
