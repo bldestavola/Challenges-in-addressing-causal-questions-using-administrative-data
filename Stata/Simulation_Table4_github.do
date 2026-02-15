@@ -21,7 +21,7 @@ time-var conf: Hosp at t=2 and t=3
 
 *************************************************************************************
 /* SELECT THE FOLDER WHERE DATA and Do files ARE HELD */
-cd 		"C:\Users\sejjbld\OneDrive - University College London\_GRANTS\Ruth Gilbert\HOPE\WP3&4\papers\IJPDS Notes\data_analyses"
+cd 		"..."
 
 /* SAVE RESULTS */
 cap log close
@@ -109,6 +109,7 @@ bootstrap rate_000=r(rate_000) rate_111=r(rate_111) ATE_RR=r(ATE_RR) ATE_RD=r(AT
 
 
 ex
+
 
 
 
