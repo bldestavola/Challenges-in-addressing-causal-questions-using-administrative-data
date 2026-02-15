@@ -11,7 +11,7 @@
 
 *************************************************************************************
 /* SELECT THE FOLDER WHERE DATA and Do files ARE HELD */
-cd 		"C:\Users\sejjbld\OneDrive - University College London\_GRANTS\Ruth Gilbert\HOPE\WP3&4\papers\IJPDS Notes\data_analyses"
+cd 		"......"
 
 /* SAVE RESULTS */
 cap log close
@@ -312,3 +312,4 @@ nlcom ( _b[POmean:0.A]+_b[ATET:r1vs0.A])/_b[POmean:0.A]
 */
 
 *
+
